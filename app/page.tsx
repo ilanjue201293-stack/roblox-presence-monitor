@@ -102,7 +102,7 @@ export default function Home() {
 
       <section className="notice">
         <span className="noticeIcon">i</span>
-        <p>Le tableau de bord actualise le statut toutes les 30 secondes lorsqu'il est ouvert. Les alertes Discord automatiques en continu nécessitent également un Cron Vercel et une mémoire Redis configurés.</p>
+        <p>Le tableau de bord actualise le statut toutes les 30 secondes lorsqu'il est ouvert. Les alertes Discord sont déclenchées automatiquement toutes les 5 minutes par GitHub Actions. La configuration Discord et Redis doit être terminée pour activer les notifications.</p>
       </section>
       {error && <p className="error">{error}</p>}
       {status?.error && <p className="error">{status.error}</p>}
