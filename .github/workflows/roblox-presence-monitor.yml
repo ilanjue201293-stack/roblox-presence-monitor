@@ -16,13 +16,19 @@ jobs:
         env:
           MONITOR_URL: https://roblox-presence-monitor-git-main-ilanjue201293-5356s-projects.vercel.app/api/cron
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
           if [ -z "${CRON_SECRET}" ]; then
             echo "Missing GitHub Actions secret: CRON_SECRET"
             exit 1
           fi
+          if [ -z "${VERCEL_BYPASS_SECRET}" ]; then
+            echo "Missing GitHub Actions secret: VERCEL_AUTOMATION_BYPASS_SECRET"
+            exit 1
+          fi
           curl --fail-with-body --silent --show-error \
             --retry 2 --retry-delay 5 \
             -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "x-vercel-protection-bypass: ${VERCEL_BYPASS_SECRET}" \
             "${MONITOR_URL}"
