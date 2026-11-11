@@ -11,6 +11,19 @@ export async function POST() {
     const webhook = process.env.DISCORD_WEBHOOK_URL;
     if (!webhook) throw new Error("Webhook Discord non configuré.");
 
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+    if (!redisUrl || !redisToken) throw new Error("Redis non configuré pour sécuriser le bouton test.");
+    const lockResponse = await fetch(redisUrl, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${redisToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify(["SET", "roblox-presence-monitor:test-lock", "1", "NX", "EX", "30"]),
+      cache: "no-store"
+    });
+    if (!lockResponse.ok) throw new Error("Impossible de vérifier le délai de sécurité du test.");
+    const lock = await lockResponse.json();
+    if (lock.result !== "OK") return NextResponse.json({ ok: false, error: "Attends 30 secondes avant de relancer le test." }, { status: 429 });
+
     const [presenceResponse, userResponse] = await Promise.all([
       fetch("https://presence.roblox.com/v1/presence/users", {
         method: "POST",
