@@ -1,0 +1,28 @@
+name: Roblox presence monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-presence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call monitor endpoint
+        env:
+          MONITOR_URL: https://roblox-presence-monitor.vercel.app/api/cron
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "Missing GitHub Actions secret: CRON_SECRET"
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            --retry 2 --retry-delay 5 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${MONITOR_URL}"
