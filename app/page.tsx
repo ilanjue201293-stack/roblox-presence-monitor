@@ -26,6 +26,8 @@ export default function Home() {
   const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [testLoading, setTestLoading] = useState(false);
+  const [testResult, setTestResult] = useState("");
 
   const refresh = useCallback(async () => {
     try {
@@ -46,6 +48,21 @@ export default function Home() {
     const timer = window.setInterval(() => void refresh(), 30_000);
     return () => window.clearInterval(timer);
   }, [refresh]);
+
+  const runTest = async () => {
+    setTestLoading(true);
+    setTestResult("");
+    try {
+      const response = await fetch("/api/test", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Le test a échoué.");
+      setTestResult(data.message || "Notification de test envoyée sur Discord.");
+    } catch (err) {
+      setTestResult(err instanceof Error ? err.message : "Erreur pendant le test.");
+    } finally {
+      setTestLoading(false);
+    }
+  };
 
   const activeTarget = status
     ? TARGETS.find((target) => target.id === status.placeId || target.id === status.rootPlaceId)
@@ -98,6 +115,13 @@ export default function Home() {
             </div>;
           })}
         </div>
+      </section>
+
+      <section className="targets testSection">
+        <div className="sectionHead"><div><p className="label">VÉRIFICATION MANUELLE</p><h2>Tester les notifications</h2></div></div>
+        <p className="subtitle">Recherche le joueur Roblox 11702703065 et envoie son statut actuel sur Discord.</p>
+        <button onClick={() => void runTest()} disabled={testLoading} className="testButton">{testLoading ? "Recherche en cours…" : "Tester maintenant"}</button>
+        {testResult && <p className="testResult" role="status">{testResult}</p>}
       </section>
 
       <section className="notice">
