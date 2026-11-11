@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Call monitor endpoint
         env:
-          MONITOR_URL: https://roblox-presence-monitor.vercel.app/api/cron
+          MONITOR_URL: https://roblox-presence-monitor-git-main-ilanjue201293-5356s-projects.vercel.app/api/cron
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           set -euo pipefail
